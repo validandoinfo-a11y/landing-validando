@@ -20,11 +20,20 @@ const whatsappUrl = (message: string) => `https://wa.me/573018718451?text=${enco
 
 function Checklist() {
   const [answers, setAnswers] = useState<string[]>(Array(questions.length).fill(""));
+  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const answered = answers.filter(Boolean).length;
   const yesCount = answers.filter((answer) => answer === "Sí").length;
   const unsureCount = answers.filter((answer) => answer === "No estoy seguro").length;
   const result = yesCount >= 8 ? "Buen punto de partida." : yesCount >= 5 ? "Hay aspectos que conviene revisar." : "Revisión prioritaria recomendada.";
+  const isLastQuestion = currentQuestion === questions.length - 1;
+
+  const selectAnswer = (option: string) => {
+    setAnswers((current) => current.map((answer, index) => index === currentQuestion ? option : answer));
+    if (!isLastQuestion) {
+      window.setTimeout(() => setCurrentQuestion((current) => current + 1), 180);
+    }
+  };
 
   return (
     <section id="checklist" className="bg-slate-50 px-6 py-24">
@@ -34,34 +43,43 @@ function Checklist() {
           <h2 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">Evalúa tu IPS en 10 preguntas</h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">Responde con honestidad. Al final tendrás una orientación inicial sobre los puntos que conviene verificar.</p>
         </div>
-        <div className="mb-8 rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
-          <div className="mb-3 flex items-center justify-between text-sm font-bold text-slate-600"><span>Progreso</span><span>{answered} de {questions.length}</span></div>
-          <div className="h-3 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-blue-600 transition-all duration-500" style={{ width: `${(answered / questions.length) * 100}%` }} /></div>
-        </div>
-        <div className="flex flex-col gap-4">
-          {questions.map((question, index) => (
-            <fieldset key={question} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <legend className="mb-5 max-w-3xl text-base font-bold leading-relaxed text-slate-900">{index + 1}. {question}</legend>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {["Sí", "No", "No estoy seguro"].map((option) => (
-                  <label key={option} className={`cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-bold transition ${answers[index] === option ? "border-blue-600 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600 hover:border-blue-300"}`}>
-                    <input type="radio" name={`question-${index}`} value={option} checked={answers[index] === option} onChange={() => setAnswers((current) => current.map((answer, i) => i === index ? option : answer))} className="sr-only" />
-                    {option}
-                  </label>
-                ))}
+        <div className="mx-auto max-w-2xl rounded-3xl border border-blue-100 bg-white p-6 shadow-xl shadow-slate-200/60 sm:p-10">
+          {!showResult ? (
+            <div key={currentQuestion} className="animate-in fade-in slide-in-from-right-3 duration-300">
+              <div className="mb-8">
+                <div className="mb-3 flex items-center justify-between text-sm font-bold text-slate-600">
+                  <span>Pregunta {currentQuestion + 1} de {questions.length}</span>
+                  <span>{Math.round(((currentQuestion + 1) / questions.length) * 100)}%</span>
+                </div>
+                <div className="h-3 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuenow={currentQuestion + 1} aria-valuemin={1} aria-valuemax={questions.length} aria-label={`Pregunta ${currentQuestion + 1} de ${questions.length}`}>
+                  <div className="h-full rounded-full bg-blue-600 transition-all duration-500" style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }} />
+                </div>
               </div>
-            </fieldset>
-          ))}
+              <fieldset>
+                <legend className="text-xl font-black leading-relaxed text-slate-950 sm:text-2xl">{questions[currentQuestion]}</legend>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  {["Sí", "No", "No estoy seguro"].map((option) => (
+                    <label key={option} className={`flex min-h-14 cursor-pointer items-center justify-center rounded-xl border px-4 py-3 text-center font-bold transition ${answers[currentQuestion] === option ? "border-blue-600 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-blue-50/50"}`}>
+                      <input type="radio" name={`question-${currentQuestion}`} value={option} checked={answers[currentQuestion] === option} onChange={() => selectAnswer(option)} className="sr-only" />
+                      {option}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <div className="mt-8 flex min-h-6 justify-start">
+                {currentQuestion > 0 && <button type="button" onClick={() => setCurrentQuestion((current) => current - 1)} className="text-sm font-bold text-slate-500 transition hover:text-blue-700">← Anterior</button>}
+              </div>
+              {isLastQuestion && <button type="button" onClick={() => setShowResult(true)} disabled={!answers[currentQuestion]} className="mt-2 w-full rounded-xl bg-blue-700 px-6 py-4 text-base font-black tracking-wide text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">VER MI RESULTADO</button>}
+            </div>
+          ) : (
+            <div aria-live="polite" className="rounded-3xl border border-blue-100 bg-blue-950 p-8 text-white shadow-xl">
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-300">Tu resultado orientativo</p>
+              <h3 className="mt-3 text-3xl font-black">{result}</h3>
+              <p className="mt-4 text-blue-100">Respuestas afirmativas: <strong>{yesCount}</strong> de {questions.length}.</p>
+              <p className="mt-2 text-blue-100">No estoy seguro: <strong>{unsureCount}</strong>. Estos puntos requieren verificación.</p>
+            </div>
+          )}
         </div>
-        <button type="button" onClick={() => setShowResult(true)} disabled={answered < questions.length} className="mt-8 w-full rounded-xl bg-blue-700 px-6 py-4 text-base font-black tracking-wide text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">VER MI RESULTADO</button>
-        {showResult && (
-          <div aria-live="polite" className="mt-8 rounded-3xl border border-blue-100 bg-blue-950 p-8 text-white shadow-xl">
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-300">Tu resultado orientativo</p>
-            <h3 className="mt-3 text-3xl font-black">{result}</h3>
-            <p className="mt-4 text-blue-100">Respuestas afirmativas: <strong>{yesCount}</strong> de {questions.length}.</p>
-            <p className="mt-2 text-blue-100">No estoy seguro: <strong>{unsureCount}</strong>. Estos puntos requieren verificación.</p>
-          </div>
-        )}
       </div>
     </section>
   );
