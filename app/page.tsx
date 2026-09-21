@@ -1,137 +1,102 @@
 "use client";
 
-import Image from 'next/image';
-import { useRef } from 'react';
+import Image from "next/image";
+import { useRef, useState } from "react";
 
-export default function ValidandoLanding() {
-  const formularioRef = useRef<HTMLDivElement>(null);
+const questions = [
+  "¿Los servicios que actualmente presta tu IPS corresponden con los servicios registrados y habilitados?",
+  "¿Las hojas de vida y soportes del talento humano están completos, actualizados y disponibles para verificación?",
+  "¿La infraestructura cumple las condiciones requeridas para los servicios que presta tu IPS?",
+  "¿La dotación y los equipos requeridos están disponibles, funcionales y cuentan con soportes de mantenimiento?",
+  "¿Los medicamentos, dispositivos médicos e insumos cuentan con controles de almacenamiento, vencimientos, recepción y trazabilidad cuando aplica?",
+  "¿Los procesos prioritarios están documentados, actualizados y el personal conoce y aplica los procedimientos correspondientes?",
+  "¿Las historias clínicas y registros asistenciales se diligencian de forma completa, oportuna y con adecuada custodia?",
+  "¿La IPS cuenta con evidencias de implementación de seguridad del paciente y gestión de riesgos?",
+  "¿Los indicadores de calidad se miden, analizan y generan acciones de mejoramiento cuando se requieren?",
+  "¿El PAMEC, cuando aplica, evidencia ejecución, seguimiento, medición y acciones de mejoramiento?",
+];
 
-  const scrollToForm = () => {
-    formularioRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+const whatsappUrl = (message: string) => `https://wa.me/573018718451?text=${encodeURIComponent(message)}`;
 
-  const whatsappUrl = "https://wa.me/573000000000?text=Hola,%20deseo%20asesoría%20sobre%20los%20servicios%20de%20Validando";
+function Checklist() {
+  const [answers, setAnswers] = useState<string[]>(Array(questions.length).fill(""));
+  const [showResult, setShowResult] = useState(false);
+  const answered = answers.filter(Boolean).length;
+  const yesCount = answers.filter((answer) => answer === "Sí").length;
+  const unsureCount = answers.filter((answer) => answer === "No estoy seguro").length;
+  const result = yesCount >= 8 ? "Buen punto de partida." : yesCount >= 5 ? "Hay aspectos que conviene revisar." : "Revisión prioritaria recomendada.";
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 relative selection:bg-blue-100">
-
-      {/* BOTÓN FLOTANTE DE WHATSAPP CON PULSO ANIMADO */}
-      <a 
-        href={whatsappUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-8 right-8 z-50 bg-green-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 hover:bg-green-600 transition-all flex items-center gap-2 group animate-bounce"
-      >
-        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-in-out whitespace-nowrap font-bold px-0 group-hover:px-2">
-          ¿Necesitas ayuda inmediata?
-        </span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93a7.898 7.898 0 0 0-2.327-5.607zM7.994 14.52a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
-        </svg>
-      </a>
-
-      {/* HERO SECTION CON GRADIENTE DINÁMICO */}
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-slate-900 text-white px-6 overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-        
-        <div className="relative z-10 max-w-6xl mx-auto text-center">
-          <div className="inline-block px-4 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm font-bold tracking-widest uppercase mb-8 animate-pulse">
-            Especialistas en Calidad Salud
+    <section id="checklist" className="bg-slate-50 px-6 py-24">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-12 text-center">
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-blue-700">Checklist Express gratuito</p>
+          <h2 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">Evalúa tu IPS en 10 preguntas</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">Responde con honestidad. Al final tendrás una orientación inicial sobre los puntos que conviene verificar.</p>
+        </div>
+        <div className="mb-8 rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center justify-between text-sm font-bold text-slate-600"><span>Progreso</span><span>{answered} de {questions.length}</span></div>
+          <div className="h-3 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-blue-600 transition-all duration-500" style={{ width: `${(answered / questions.length) * 100}%` }} /></div>
+        </div>
+        <div className="flex flex-col gap-4">
+          {questions.map((question, index) => (
+            <fieldset key={question} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <legend className="mb-5 max-w-3xl text-base font-bold leading-relaxed text-slate-900">{index + 1}. {question}</legend>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {["Sí", "No", "No estoy seguro"].map((option) => (
+                  <label key={option} className={`cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-bold transition ${answers[index] === option ? "border-blue-600 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600 hover:border-blue-300"}`}>
+                    <input type="radio" name={`question-${index}`} value={option} checked={answers[index] === option} onChange={() => setAnswers((current) => current.map((answer, i) => i === index ? option : answer))} className="sr-only" />
+                    {option}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+        <button type="button" onClick={() => setShowResult(true)} disabled={answered < questions.length} className="mt-8 w-full rounded-xl bg-blue-700 px-6 py-4 text-base font-black tracking-wide text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">VER MI RESULTADO</button>
+        {showResult && (
+          <div aria-live="polite" className="mt-8 rounded-3xl border border-blue-100 bg-blue-950 p-8 text-white shadow-xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-300">Tu resultado orientativo</p>
+            <h3 className="mt-3 text-3xl font-black">{result}</h3>
+            <p className="mt-4 text-blue-100">Respuestas afirmativas: <strong>{yesCount}</strong> de {questions.length}.</p>
+            <p className="mt-2 text-blue-100">No estoy seguro: <strong>{unsureCount}</strong>. Estos puntos requieren verificación.</p>
           </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
-          <div className="mb-10">
-            <Image src="/logo.png" alt="Validando" width={220} height={90} priority className="mx-auto drop-shadow-2xl" />
-            <p className="mt-4 text-blue-100 text-lg font-medium tracking-wide">
-              Soluciones integrales de calidad en salud
-            </p>
-          </div>
+export default function ValidandoLanding() {
+  const checklistRef = useRef<HTMLElement>(null);
+  const scrollToChecklist = () => checklistRef.current?.scrollIntoView({ behavior: "smooth" });
+  const whatsappMessage = "Hola, realicé el Checklist Express de VALIDANDO y quiero información para revisar mi IPS.";
 
-          <h1 className="text-5xl md:text-8xl font-black mb-8 leading-tight">
-            Cero hallazgos en tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-cyan-200">PAMEC y Habilitación</span>
-          </h1>
-
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
-            {/* CARD 1 */}
-            <div className="bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/10 hover:border-blue-400/50 transition-all group">
-              <h3 className="text-xl font-bold mb-2">PAMEC Mensual</h3>
-              <p className="text-blue-300 text-sm mb-4">IPS y Transporte Asistencial</p>
-              <div className="text-5xl font-black text-white">$400.000 <span className="text-lg font-normal opacity-60">COP/mes</span></div>
-            </div>
-            
-            {/* CARD 2 */}
-            <div className="bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/10 hover:border-blue-400/50 transition-all group">
-              <h3 className="text-xl font-bold mb-2">Documentación</h3>
-              <p className="text-blue-300 text-sm mb-4">Profesionales Independientes</p>
-              <div className="text-5xl font-black text-white">$850.000 <span className="text-lg font-normal opacity-60">COP</span></div>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={scrollToForm} 
-              className="bg-blue-500 hover:bg-blue-400 text-white px-10 py-5 rounded-2xl text-xl font-black shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all transform hover:-translate-y-1"
-            >
-              ¡AGENDAR DIAGNÓSTICO GRATIS!
-            </button>
+  return (
+    <main className="min-h-screen bg-white text-slate-900 selection:bg-blue-100">
+      <a href={whatsappUrl(whatsappMessage)} target="_blank" rel="noopener noreferrer" aria-label="Contactar a VALIDANDO por WhatsApp" className="fixed bottom-5 right-5 z-50 flex size-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl transition hover:scale-105 hover:bg-emerald-600"><span aria-hidden="true" className="text-2xl font-black">↗</span></a>
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-900 to-slate-950 px-6 py-16 text-white md:py-24">
+        <div className="absolute -right-24 -top-32 size-96 rounded-full bg-blue-500/20 blur-3xl" />
+        <div className="relative mx-auto max-w-6xl">
+          <header className="flex items-center justify-between"><Image src="/logo.png" alt="VALIDANDO" width={180} height={74} priority className="brightness-0 invert" /><span className="hidden rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-blue-200 md:block">Especialistas en Calidad en Salud</span></header>
+          <div className="max-w-3xl py-20 md:py-28">
+            <p className="mb-5 text-sm font-bold uppercase tracking-[0.24em] text-cyan-300">Para IPS que quieren estar preparadas</p>
+            <h1 className="text-4xl font-black leading-[1.08] tracking-tight md:text-7xl">¿Tu IPS está preparada para una visita de habilitación?</h1>
+            <p className="mt-7 max-w-2xl text-xl leading-relaxed text-blue-100 md:text-2xl">Descúbrelo en menos de 3 minutos con nuestro Checklist Express gratuito.</p>
+            <button type="button" onClick={scrollToChecklist} className="mt-10 rounded-xl bg-cyan-400 px-7 py-4 text-sm font-black tracking-wide text-blue-950 shadow-xl shadow-cyan-400/20 transition hover:bg-cyan-300">COMENZAR CHECKLIST GRATIS</button>
           </div>
         </div>
       </section>
 
-      {/* FORMULARIO CON DISEÑO PREMIUM */}
-      <section ref={formularioRef} className="py-24 px-6 bg-slate-50">
-        <div className="max-w-xl mx-auto">
-          <div className="bg-white p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100">
-            <h3 className="text-3xl font-black mb-2 text-center text-slate-900">Empieza hoy mismo</h3>
-            <p className="text-center text-slate-500 mb-8 font-medium">Recibe respuesta en menos de 30 minutos.</p>
-            
-            <form
-              onSubmit={(e: any) => {
-                e.preventDefault();
-                const mensaje = `Hola Validando! Mi nombre es ${e.target.nombre.value}. Me urge asesoría para ${e.target.servicio.value} en mi consultorio/IPS ${e.target.empresa.value}.`;
-                window.open(`https://wa.me/573000000000?text=${encodeURIComponent(mensaje)}`, "_blank");
-              }}
-              className="space-y-5"
-            >
-              <div className="space-y-1">
-                <label className="text-xs font-bold uppercase text-slate-400 ml-2">Nombre y Apellido</label>
-                <input name="nombre" required className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all outline-none text-slate-700 font-semibold" />
-              </div>
-              
-              <div className="space-y-1">
-                <label className="text-xs font-bold uppercase text-slate-400 ml-2">IPS / Consultorio</label>
-                <input name="empresa" required className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all outline-none text-slate-700 font-semibold" />
-              </div>
+      <section ref={checklistRef}><Checklist /></section>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold uppercase text-slate-400 ml-2">Servicio de Interés</label>
-                <select name="servicio" className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all outline-none text-slate-700 font-bold appearance-none">
-                  <option value="PAMEC Mensual">PAMEC Mensual ($400.000 COP)</option>
-                  <option value="Documentación Independientes">Documentación Independientes ($850.000 COP)</option>
-                </select>
-              </div>
+      <section className="px-6 py-24"><div className="mx-auto max-w-6xl"><div className="max-w-2xl"><p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-700">Acompañamiento especializado</p><h2 className="mt-3 text-3xl font-black text-slate-950 md:text-5xl">¿Cómo podemos ayudarte?</h2></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{["Diagnóstico SUH", "Habilitación", "PAMEC", "Auditoría"].map((item) => <div key={item} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><div className="mb-5 flex size-10 items-center justify-center rounded-xl bg-blue-50 font-black text-blue-700">✓</div><h3 className="text-xl font-black text-slate-900">{item}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">Orientación práctica para fortalecer la calidad de tus servicios.</p></div>)}</div></div></section>
 
-              <button type="submit" className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-lg hover:bg-blue-900 transition-all shadow-xl">
-                SOLICITAR ASESORÍA AHORA
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
+      <section className="bg-slate-50 px-6 py-24"><div className="mx-auto max-w-6xl"><div className="text-center"><p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-700">Una ruta clara</p><h2 className="mt-3 text-3xl font-black text-slate-950 md:text-5xl">Así trabajamos</h2></div><div className="mt-14 grid gap-8 md:grid-cols-4">{["Revisamos", "Identificamos brechas", "Priorizamos", "Acompañamos la mejora"].map((step, index) => <div key={step} className="text-center"><div className="mx-auto flex size-14 items-center justify-center rounded-full bg-blue-700 text-xl font-black text-white">{index + 1}</div><h3 className="mt-5 font-black text-slate-900">{step}</h3></div>)}</div></div></section>
 
-      {/* FOOTER MODERNO */}
-      <footer className="py-20 bg-white text-center px-6 border-t border-slate-100">
-        <div className="max-w-4xl mx-auto">
-          <Image src="/logo.png" alt="Validando" width={150} height={60} className="mx-auto mb-6 opacity-90" />
-          <h4 className="text-xl font-bold text-slate-900 mb-2">Validando</h4>
-          <p className="text-slate-500 font-medium mb-8 uppercase tracking-tighter text-sm">
-            Soluciones integrales de calidad en salud
-          </p>
-          <div className="h-[1px] w-20 bg-blue-500 mx-auto mb-8" />
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">
-            © {new Date().getFullYear()} Especialistas en Normatividad Colombiana.
-          </p>
-        </div>
-      </footer>
-    </div>
+      <section className="px-6 py-20"><div className="mx-auto max-w-3xl rounded-3xl bg-blue-50 p-8 text-center md:p-12"><h2 className="text-3xl font-black text-slate-950">¿Encontraste puntos por mejorar?</h2><p className="mx-auto mt-5 max-w-2xl leading-relaxed text-slate-600">VALIDANDO puede ayudarte a identificar brechas y establecer una ruta de trabajo de acuerdo con los servicios habilitados.</p><a href={whatsappUrl(whatsappMessage)} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex rounded-xl bg-emerald-500 px-7 py-4 text-sm font-black tracking-wide text-white shadow-lg transition hover:bg-emerald-600">QUIERO REVISAR MI IPS</a></div></section>
+
+      <footer className="border-t border-slate-100 bg-white px-6 py-12 text-center"><Image src="/logo.png" alt="VALIDANDO" width={140} height={58} className="mx-auto mb-5" /><p className="mx-auto max-w-3xl text-xs leading-relaxed text-slate-500">Este checklist es una herramienta orientativa y no sustituye una auditoría, una visita de verificación ni la evaluación integral de los criterios aplicables al prestador y sus servicios.</p><p className="mt-6 text-xs font-bold uppercase tracking-widest text-slate-400">© {new Date().getFullYear()} VALIDANDO · Especialistas en Calidad en Salud</p></footer>
+    </main>
   );
 }
