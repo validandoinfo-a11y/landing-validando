@@ -18,22 +18,33 @@ const questions = [
 
 const whatsappUrl = (message: string) => `https://wa.me/573018718451?text=${encodeURIComponent(message)}`;
 
+type LeadData = {
+  nombre: string;
+  whatsapp: string;
+  prestador: string;
+  tipoPrestador: string;
+};
+
 function Checklist() {
   const [answers, setAnswers] = useState<string[]>(Array(questions.length).fill(""));
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-  const answered = answers.filter(Boolean).length;
+  const [stage, setStage] = useState<"questions" | "lead" | "result">("questions");
+  const [lead, setLead] = useState<LeadData>({ nombre: "", whatsapp: "", prestador: "", tipoPrestador: "" });
   const yesCount = answers.filter((answer) => answer === "Sí").length;
+  const noCount = answers.filter((answer) => answer === "No").length;
   const unsureCount = answers.filter((answer) => answer === "No estoy seguro").length;
-  const result = yesCount >= 8 ? "Buen punto de partida." : yesCount >= 5 ? "Hay aspectos que conviene revisar." : "Revisión prioritaria recomendada.";
+  const score = Math.round((yesCount / questions.length) * 100);
+  const level = score >= 80 ? "Orientación favorable" : score >= 50 ? "Aspectos por revisar" : "Revisión prioritaria";
   const isLastQuestion = currentQuestion === questions.length - 1;
 
   const selectAnswer = (option: string) => {
     setAnswers((current) => current.map((answer, index) => index === currentQuestion ? option : answer));
-    if (!isLastQuestion) {
-      window.setTimeout(() => setCurrentQuestion((current) => current + 1), 180);
-    }
+    if (!isLastQuestion) window.setTimeout(() => setCurrentQuestion((current) => current + 1), 180);
   };
+
+  const updateLead = (field: keyof LeadData, value: string) => setLead((current) => ({ ...current, [field]: value }));
+  const resultSummary = `${score}% (${yesCount}/${questions.length} respuestas Sí)`;
+  const advisorMessage = `Hola, soy ${lead.nombre}. Realicé el Checklist Express de VALIDANDO para ${lead.prestador}. Mi resultado fue ${resultSummary}. Quisiera recibir orientación para revisar mi prestador.`;
 
   return (
     <section id="checklist" className="bg-slate-50 px-6 py-24">
@@ -44,39 +55,43 @@ function Checklist() {
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">Responde con honestidad. Al final tendrás una orientación inicial sobre los puntos que conviene verificar.</p>
         </div>
         <div className="mx-auto max-w-2xl rounded-3xl border border-blue-100 bg-white p-6 shadow-xl shadow-slate-200/60 sm:p-10">
-          {!showResult ? (
+          {stage === "questions" && (
             <div key={currentQuestion} className="animate-in fade-in slide-in-from-right-3 duration-300">
               <div className="mb-8">
-                <div className="mb-3 flex items-center justify-between text-sm font-bold text-slate-600">
-                  <span>Pregunta {currentQuestion + 1} de {questions.length}</span>
-                  <span>{Math.round(((currentQuestion + 1) / questions.length) * 100)}%</span>
-                </div>
-                <div className="h-3 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuenow={currentQuestion + 1} aria-valuemin={1} aria-valuemax={questions.length} aria-label={`Pregunta ${currentQuestion + 1} de ${questions.length}`}>
-                  <div className="h-full rounded-full bg-blue-600 transition-all duration-500" style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }} />
-                </div>
+                <div className="mb-3 flex items-center justify-between text-sm font-bold text-slate-600"><span>Pregunta {currentQuestion + 1} de {questions.length}</span><span>{Math.round(((currentQuestion + 1) / questions.length) * 100)}%</span></div>
+                <div className="h-3 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuenow={currentQuestion + 1} aria-valuemin={1} aria-valuemax={questions.length} aria-label={`Pregunta ${currentQuestion + 1} de ${questions.length}`}><div className="h-full rounded-full bg-blue-600 transition-all duration-500" style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }} /></div>
               </div>
               <fieldset>
                 <legend className="text-xl font-black leading-relaxed text-slate-950 sm:text-2xl">{questions[currentQuestion]}</legend>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  {["Sí", "No", "No estoy seguro"].map((option) => (
-                    <label key={option} className={`flex min-h-14 cursor-pointer items-center justify-center rounded-xl border px-4 py-3 text-center font-bold transition ${answers[currentQuestion] === option ? "border-blue-600 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-blue-50/50"}`}>
-                      <input type="radio" name={`question-${currentQuestion}`} value={option} checked={answers[currentQuestion] === option} onChange={() => selectAnswer(option)} className="sr-only" />
-                      {option}
-                    </label>
-                  ))}
-                </div>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">{["Sí", "No", "No estoy seguro"].map((option) => <label key={option} className={`flex min-h-14 cursor-pointer items-center justify-center rounded-xl border px-4 py-3 text-center font-bold transition ${answers[currentQuestion] === option ? "border-blue-600 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-blue-50/50"}`}><input type="radio" name={`question-${currentQuestion}`} value={option} checked={answers[currentQuestion] === option} onChange={() => selectAnswer(option)} className="sr-only" />{option}</label>)}</div>
               </fieldset>
-              <div className="mt-8 flex min-h-6 justify-start">
-                {currentQuestion > 0 && <button type="button" onClick={() => setCurrentQuestion((current) => current - 1)} className="text-sm font-bold text-slate-500 transition hover:text-blue-700">← Anterior</button>}
-              </div>
-              {isLastQuestion && <button type="button" onClick={() => setShowResult(true)} disabled={!answers[currentQuestion]} className="mt-2 w-full rounded-xl bg-blue-700 px-6 py-4 text-base font-black tracking-wide text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">VER MI RESULTADO</button>}
+              <div className="mt-8 flex min-h-6 justify-start">{currentQuestion > 0 && <button type="button" onClick={() => setCurrentQuestion((current) => current - 1)} className="text-sm font-bold text-slate-500 transition hover:text-blue-700">← Anterior</button>}</div>
+              {isLastQuestion && <button type="button" onClick={() => setStage("lead")} disabled={!answers[currentQuestion]} className="mt-2 w-full rounded-xl bg-blue-700 px-6 py-4 text-base font-black tracking-wide text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">VER MI RESULTADO</button>}
             </div>
-          ) : (
-            <div aria-live="polite" className="rounded-3xl border border-blue-100 bg-blue-950 p-8 text-white shadow-xl">
+          )}
+          {stage === "lead" && (
+            <form onSubmit={(event) => { event.preventDefault(); setStage("result"); }} className="animate-in fade-in duration-300">
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-700">Checklist Express</p>
+              <h3 className="mt-2 text-3xl font-black text-slate-950">¡Listo! Tu diagnóstico está preparado</h3>
+              <p className="mt-3 text-slate-600">Déjanos tus datos para mostrarte el resultado de tu Checklist Express.</p>
+              <div className="mt-7 grid gap-4">
+                <label className="grid gap-2 text-sm font-bold text-slate-700">Nombre y apellido<input required value={lead.nombre} onChange={(event) => updateLead("nombre", event.target.value)} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" /></label>
+                <label className="grid gap-2 text-sm font-bold text-slate-700">Número de WhatsApp<input required type="tel" value={lead.whatsapp} onChange={(event) => updateLead("whatsapp", event.target.value)} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" /></label>
+                <label className="grid gap-2 text-sm font-bold text-slate-700">Nombre de la IPS / consultorio<input required value={lead.prestador} onChange={(event) => updateLead("prestador", event.target.value)} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" /></label>
+                <label className="grid gap-2 text-sm font-bold text-slate-700">Tipo de prestador<select required value={lead.tipoPrestador} onChange={(event) => updateLead("tipoPrestador", event.target.value)} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"><option value="">Selecciona una opción</option><option>IPS</option><option>Profesional independiente</option><option>Transporte asistencial</option><option>Otro</option></select></label>
+              </div>
+              <button type="submit" className="mt-6 w-full rounded-xl bg-blue-700 px-6 py-4 text-base font-black tracking-wide text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800">VER MI RESULTADO</button>
+              <p className="mt-4 text-xs leading-relaxed text-slate-500">Al continuar autorizas el tratamiento de tus datos personales para atender tu solicitud. Consulta nuestra <span className="font-semibold text-blue-700">Política de Tratamiento de Datos Personales.</span></p>
+            </form>
+          )}
+          {stage === "result" && (
+            <div aria-live="polite" className="animate-in fade-in duration-300 rounded-3xl border border-blue-100 bg-blue-950 p-7 text-white shadow-xl sm:p-8">
               <p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-300">Tu resultado orientativo</p>
-              <h3 className="mt-3 text-3xl font-black">{result}</h3>
-              <p className="mt-4 text-blue-100">Respuestas afirmativas: <strong>{yesCount}</strong> de {questions.length}.</p>
-              <p className="mt-2 text-blue-100">No estoy seguro: <strong>{unsureCount}</strong>. Estos puntos requieren verificación.</p>
+              <div className="mt-4 flex items-end gap-3"><span className="text-6xl font-black text-cyan-300">{score}%</span><span className="pb-2 text-blue-100">puntaje orientativo</span></div>
+              <h3 className="mt-4 text-2xl font-black">{level}</h3>
+              <div className="mt-6 grid grid-cols-3 gap-2 text-center text-sm"><div className="rounded-xl bg-white/10 p-3"><strong className="block text-2xl">{yesCount}</strong>Sí</div><div className="rounded-xl bg-white/10 p-3"><strong className="block text-2xl">{noCount}</strong>No</div><div className="rounded-xl bg-white/10 p-3"><strong className="block text-2xl">{unsureCount}</strong>No estoy seguro</div></div>
+              <p className="mt-6 text-sm leading-relaxed text-blue-100">Este resultado es orientativo y no reemplaza una auditoría ni una visita de verificación. Te ayuda a identificar temas que conviene revisar con mayor detalle.</p>
+              <a href={whatsappUrl(advisorMessage)} target="_blank" rel="noopener noreferrer" className="mt-7 inline-flex w-full justify-center rounded-xl bg-emerald-500 px-5 py-4 text-center text-sm font-black tracking-wide text-white transition hover:bg-emerald-600">QUIERO REVISAR MI IPS CON UN ASESOR</a>
             </div>
           )}
         </div>
