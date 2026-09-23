@@ -107,11 +107,11 @@ export default function ValidandoLanding() {
 
   return (
     <main className="min-h-screen bg-white text-slate-900 selection:bg-blue-100">
-      <a href={whatsappUrl(whatsappMessage)} target="_blank" rel="noopener noreferrer" aria-label="Contactar a VALIDANDO por WhatsApp" className="fixed bottom-5 right-5 z-50 flex size-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl transition hover:scale-105 hover:bg-emerald-600"><span aria-hidden="true" className="text-2xl font-black">↗</span></a>
+      <a href={whatsappUrl(whatsappMessage)} target="_blank" rel="noopener noreferrer" aria-label="Contactar a VALIDANDO por WhatsApp" className="fixed bottom-5 right-5 z-50 flex size-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl transition hover:scale-105 hover:bg-emerald-600"><span aria-hidden="true" className="text-2xl font-black">��</span></a>
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-900 to-slate-950 px-6 py-16 text-white md:py-24">
         <div className="absolute -right-24 -top-32 size-96 rounded-full bg-blue-500/20 blur-3xl" />
         <div className="relative mx-auto max-w-6xl">
-          <header className="flex items-center justify-between"><Image src="/logo.png" alt="VALIDANDO" width={180} height={74} priority className="brightness-0 invert" /><span className="hidden rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-blue-200 md:block">Especialistas en Calidad en Salud</span></header>
+          <header className="flex items-center justify-between"><Image src="/logo-transparent.png" alt="VALIDANDO" width={180} height={74} priority className="h-auto w-[180px] object-contain" /><span className="hidden rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-blue-200 md:block">Especialistas en Calidad en Salud</span></header>
           <div className="max-w-3xl py-20 md:py-28">
             <p className="mb-5 text-sm font-bold uppercase tracking-[0.24em] text-cyan-300">Para IPS que quieren estar preparadas</p>
             <h1 className="text-4xl font-black leading-[1.08] tracking-tight md:text-7xl">¿Tu IPS está preparada para una visita de habilitación?</h1>
