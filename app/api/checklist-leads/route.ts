@@ -15,6 +15,7 @@ export async function POST(request: Request) {
     const prestador = typeof body.prestador === "string" ? body.prestador.trim() : "";
     const tipoPrestador = typeof body.tipo_prestador === "string" ? body.tipo_prestador.trim() : "";
     const porcentaje = Number(body.porcentaje);
+    const puntaje = Number.isInteger(Number(body.puntaje)) ? Number(body.puntaje) : porcentaje;
     const nivel = typeof body.nivel === "string" ? body.nivel.trim() : "";
 
     if (!nombre || !whatsapp || !prestador || !tipoPrestador || !nivel || !Number.isInteger(porcentaje) || porcentaje < 0 || porcentaje > 100) {
@@ -24,10 +25,11 @@ export async function POST(request: Request) {
     const { error } = await supabase.from("checklist_leads").insert({
       nombre,
       whatsapp,
-      prestador,
+      ips_consultorio: prestador,
       tipo_prestador: tipoPrestador,
+      puntaje,
       porcentaje,
-      nivel,
+      resultado: nivel,
     });
 
     if (error) {
