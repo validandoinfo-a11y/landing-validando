@@ -1,13 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { createClient } from "@supabase/supabase-js";
 import { useRef, useState } from "react";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
 
 const questions = [
   "¿Los servicios que actualmente presta tu IPS corresponden con los servicios registrados y habilitados?",
@@ -36,6 +30,7 @@ function Checklist() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [stage, setStage] = useState<"questions" | "lead" | "result">("questions");
   const [lead, setLead] = useState<LeadData>({ nombre: "", whatsapp: "", prestador: "", tipoPrestador: "" });
+  const [saveError, setSaveError] = useState("");
   const yesCount = answers.filter((answer) => answer === "Sí").length;
   const noCount = answers.filter((answer) => answer === "No").length;
   const unsureCount = answers.filter((answer) => answer === "No estoy seguro").length;
@@ -77,16 +72,22 @@ function Checklist() {
           {stage === "lead" && (
             <form onSubmit={async (event) => {
               event.preventDefault();
-              const { error } = await supabase.from("checklist_leads").insert({
-                nombre: lead.nombre.trim(),
-                whatsapp: lead.whatsapp.trim(),
-                prestador: lead.prestador.trim(),
-                tipo_prestador: lead.tipoPrestador,
-                porcentaje: score,
-                nivel: level,
+              setSaveError("");
+              const response = await fetch("/api/checklist-leads", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  nombre: lead.nombre.trim(),
+                  whatsapp: lead.whatsapp.trim(),
+                  prestador: lead.prestador.trim(),
+                  tipo_prestador: lead.tipoPrestador,
+                  porcentaje: score,
+                  nivel: level,
+                }),
               });
-              if (error) {
-                console.error("[v0] No se pudo guardar el lead:", error);
+              if (!response.ok) {
+                setSaveError("No pudimos guardar tus datos. Intenta nuevamente.");
+                return;
               }
               setStage("result");
             }} className="animate-in fade-in duration-300">
@@ -100,6 +101,7 @@ function Checklist() {
                 <label className="grid gap-2 text-sm font-bold text-slate-700">Tipo de prestador<select required value={lead.tipoPrestador} onChange={(event) => updateLead("tipoPrestador", event.target.value)} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"><option value="">Selecciona una opción</option><option>IPS</option><option>Profesional independiente</option><option>Transporte asistencial</option><option>Otro</option></select></label>
               </div>
               <button type="submit" className="mt-6 w-full rounded-xl bg-blue-700 px-6 py-4 text-base font-black tracking-wide text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800">VER MI RESULTADO</button>
+              {saveError && <p role="alert" className="mt-3 text-sm font-semibold text-red-600">{saveError}</p>}
               <p className="mt-4 text-xs leading-relaxed text-slate-500">Al continuar autorizas el tratamiento de tus datos personales para atender tu solicitud. Consulta nuestra <span className="font-semibold text-blue-700">Política de Tratamiento de Datos Personales.</span></p>
             </form>
           )}
