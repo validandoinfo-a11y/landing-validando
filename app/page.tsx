@@ -1,7 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { createClient } from "@supabase/supabase-js";
 import { useRef, useState } from "react";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
 
 const questions = [
   "¿Los servicios que actualmente presta tu IPS corresponden con los servicios registrados y habilitados?",
@@ -69,7 +75,21 @@ function Checklist() {
             </div>
           )}
           {stage === "lead" && (
-            <form onSubmit={(event) => { event.preventDefault(); setStage("result"); }} className="animate-in fade-in duration-300">
+            <form onSubmit={async (event) => {
+              event.preventDefault();
+              const { error } = await supabase.from("checklist_leads").insert({
+                nombre: lead.nombre.trim(),
+                whatsapp: lead.whatsapp.trim(),
+                prestador: lead.prestador.trim(),
+                tipo_prestador: lead.tipoPrestador,
+                porcentaje: score,
+                nivel: level,
+              });
+              if (error) {
+                console.error("[v0] No se pudo guardar el lead:", error);
+              }
+              setStage("result");
+            }} className="animate-in fade-in duration-300">
               <p className="text-sm font-bold uppercase tracking-[0.2em] text-blue-700">Checklist Express</p>
               <h3 className="mt-2 text-3xl font-black text-slate-950">¡Listo! Tu diagnóstico está preparado</h3>
               <p className="mt-3 text-slate-600">Déjanos tus datos para mostrarte el resultado de tu Checklist Express.</p>
