@@ -43,7 +43,7 @@ function Checklist() {
   };
 
   const updateLead = (field: keyof LeadData, value: string) => setLead((current) => ({ ...current, [field]: value }));
-  const advisorMessage = `Hola, soy ${lead.nombre}. 👋 Realicé el Checklist Express de VALIDANDO para ${lead.prestador}. Mi resultado fue ${score}% – ${level}. Quisiera recibir orientación para conocer qué aspectos debo fortalecer y cómo podemos mejorar la preparación de mi prestador.`;
+  const advisorMessage = `Hola, soy ${lead.nombre}. Realicé el Checklist Express de VALIDANDO para ${lead.prestador}. Mi resultado fue ${score}% – ${level}. Quisiera recibir orientación para conocer qué aspectos debo fortalecer y cómo podemos mejorar la preparación de mi prestador.`;
 
   return (
     <section id="checklist" className="bg-slate-50 px-6 py-24">
