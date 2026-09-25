@@ -15,6 +15,22 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Checklist Express para IPS | VALIDANDO",
   description: "Evalúa en menos de 3 minutos si tu IPS está preparada para una visita de habilitación.",
+  icons: {
+    icon: "/logo-validando.svg",
+    shortcut: "/logo-validando.svg",
+    apple: "/logo-validando.svg",
+  },
+  openGraph: {
+    title: "Checklist Express para IPS | VALIDANDO",
+    description: "Evalúa en menos de 3 minutos si tu IPS está preparada para una visita de habilitación.",
+    images: [{ url: "/logo-validando.svg", alt: "VALIDANDO" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "Checklist Express para IPS | VALIDANDO",
+    description: "Evalúa en menos de 3 minutos si tu IPS está preparada para una visita de habilitación.",
+    images: ["/logo-validando.svg"],
+  },
 };
 
 export default function RootLayout({
