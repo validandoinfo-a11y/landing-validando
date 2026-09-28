@@ -10,7 +10,7 @@ export default function ValidandoLanding() {
     formularioRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const whatsappUrl = "https://wa.me/573000000000?text=Hola,%20deseo%20asesoría%20sobre%20los%20servicios%20de%20Validando";
+  const whatsappUrl = "https://wa.me/573018718451?text=Hola,%20deseo%20asesoría%20sobre%20los%20servicios%20de%20Validando";
 
   return (
     <div className="min-h-screen bg-white text-slate-900 relative selection:bg-blue-100">
@@ -85,10 +85,14 @@ export default function ValidandoLanding() {
             <p className="text-center text-slate-500 mb-8 font-medium">Recibe respuesta en menos de 30 minutos.</p>
             
             <form
-              onSubmit={(e: any) => {
+              onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                 e.preventDefault();
-                const mensaje = `Hola Validando! Mi nombre es ${e.target.nombre.value}. Me urge asesoría para ${e.target.servicio.value} en mi consultorio/IPS ${e.target.empresa.value}.`;
-                window.open(`https://wa.me/573000000000?text=${encodeURIComponent(mensaje)}`, "_blank");
+                const form = e.currentTarget;
+                const nombre = (form.elements.namedItem("nombre") as HTMLInputElement).value;
+                const servicio = (form.elements.namedItem("servicio") as HTMLSelectElement).value;
+                const empresa = (form.elements.namedItem("empresa") as HTMLInputElement).value;
+                const mensaje = `Hola Validando! Mi nombre es ${nombre}. Me urge asesoría para ${servicio} en mi consultorio/IPS ${empresa}.`;
+                window.open(`https://wa.me/573018718451?text=${encodeURIComponent(mensaje)}`, "_blank");
               }}
               className="space-y-5"
             >
